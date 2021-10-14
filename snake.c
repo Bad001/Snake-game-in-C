@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ncurses.h>
 #include "snake.h"
 
 static int** mat;
@@ -33,13 +34,13 @@ void creaSerpente(int start) {
     serpente = tmp;
     serpente -> coordinate.x = x;
     serpente -> coordinate.y = y;
-    if(ultimaKey == "w") {
+    if(ultimaKey == 'w') {
       serpente -> coordinate.y--;
     }
-    else if(ultimaKey == "a") {
+    else if(ultimaKey == 'a') {
       serpente -> coordinate.x--;
     }
-    else if(ultimaKey == "s") {
+    else if(ultimaKey == 's') {
       serpente -> coordinate.y++;
     }
     else {
@@ -51,7 +52,7 @@ void creaSerpente(int start) {
 int aggiornaMatrice() {
   struct Serpente* tmp = (struct Serpente *) malloc(sizeof(struct Serpente));
   tmp = testaSerpente;
-  if(ultimaKey == "w") {
+  if(ultimaKey == 'w') {
     while (tmp != NULL) {
       if((tmp -> coordinate.y-1) < 0) {
         tmp -> coordinate.y = (n-1);
@@ -62,7 +63,7 @@ int aggiornaMatrice() {
       tmp = tmp -> coda;
     }
   }
-  else if(ultimaKey == "a") {
+  else if(ultimaKey == 'a') {
     while (tmp != NULL) {
       if((tmp -> coordinate.x-1) < 0) {
         tmp -> coordinate.x = (m-1);
@@ -73,7 +74,7 @@ int aggiornaMatrice() {
       tmp = tmp -> coda;
     }
   }
-  else if(ultimaKey == "s") {
+  else if(ultimaKey == 's') {
     while (tmp != NULL) {
       if((tmp -> coordinate.y+1) > n) {
         tmp -> coordinate.y = 0;
@@ -116,28 +117,30 @@ int aggiornaMatrice() {
 
 int spostaSerpente(char direzione) {
   int esito = 0;
-  if(direzione == "w" && ultimaKey != "s") {
+  if(direzione == 'w' && ultimaKey != 's') {
+    ultimaKey = 'w';
     esito = aggiornaMatrice();
-    ultimaKey = "w";
   }
-  else if(direzione == "a" && ultimaKey != "d") {
+  else if(direzione == 'a' && ultimaKey != 'd') {
+    ultimaKey = 'a';
     esito = aggiornaMatrice();
-    ultimaKey = "a";
   }
-  else if(direzione == "s" && ultimaKey != "w") {
+  else if(direzione == 's' && ultimaKey != 'w') {
+    ultimaKey = 's';
     esito = aggiornaMatrice();
-    ultimaKey = "s";
   }
-  else if(direzione == "d" && ultimaKey != "a") {
+  else if(direzione == 'd' && ultimaKey != 'a') {
+    ultimaKey = 'd';
     esito = aggiornaMatrice();
-    ultimaKey = "d";
   }
-  else if(direzione == "e") {
+  else if(direzione == 'e') {
     esito = 1;
   }
   else {
     esito = aggiornaMatrice();
   }
+  //refresh();
+  getchar();
   system("clear");
   return punteggio == (n*m) ? 1 : esito;
 }
@@ -157,7 +160,8 @@ void snakeGame() {
   //srand(time(NULL));
   //frutta[0] = rand() % n;
   //frutta[1] = rand() % m;
-  ultimaKey = "d";
+  //initscr();
+  ultimaKey = 'a';
   int flag = 0;
   punteggio = 0;
   printf("Inserisci la dimensione della mappa di gioco NxM\n");
@@ -165,12 +169,13 @@ void snakeGame() {
   scanf("%d", &n);
   printf("Inserisci M: ");
   scanf("%d", &m);
+  //refresh();
   system("clear");
   creaMatrice(n,m);
   //mat[frutta[0]][frutta[1]] = 64;
   creaSerpente(1);
   do {
-    flag = spostaSerpente("s");
+    flag = spostaSerpente((char)getch());
   } while(!flag);
   if(punteggio == (n*m)) {
     printf("Hai vinto!\n");
@@ -179,4 +184,5 @@ void snakeGame() {
     printf("Hai perso!\n");
   }
   free(mat);
+  //endwin();
 }
